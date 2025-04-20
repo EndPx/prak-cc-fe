@@ -16,7 +16,7 @@ export default function NotesPage() {
     content: string;
   }
 
-  const API_BASE_URL = https://be-826127898002.us-central1.run.app;
+  const API_BASE_URL = "https://be-826127898002.us-central1.run.app";
   console.log(API_BASE_URL)
   const [notes, setNotes] = useState<Note[]>([]);
   const [title, setTitle] = useState("");
