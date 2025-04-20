@@ -17,7 +17,6 @@ export default function NotesPage() {
   }
 
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-  console.log(API_BASE_URL)
   const [notes, setNotes] = useState<Note[]>([]);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
