@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL + "/users";
+console.log(baseUrl);
 
 export default function AuthPage() {
   const router = useRouter();
