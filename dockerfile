@@ -1,5 +1,5 @@
 # Gunakan image Node.js versi terbaru
-FROM node:20
+FROM node:18
 
 # Tentukan direktori kerja di dalam container
 WORKDIR /app
