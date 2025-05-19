@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL + "/users";
+const baseUrl = process.env.BASE_URL + "/users";
 console.log("sebelum masuk", baseUrl);
 
 export default function AuthPage() {
