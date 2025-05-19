@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
 export default function AuthPage() {
   const router = useRouter();
   const [baseUrl, setBaseUrl] = useState("");
@@ -13,7 +15,7 @@ export default function AuthPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const url = process.env.NEXT_PUBLIC_API_BASE_URL + "/users";
+    const url = API_BASE_URL + "/users";
     setBaseUrl(url);
     console.log("Base URL set:", url);
   }, []);
