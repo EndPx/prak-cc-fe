@@ -3,9 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-console.log("ENV", process.env.NEXT_PUBLIC_API_BASE_URL);
-const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL + "/users";
-
 
 export default function AuthPage() {
   const router = useRouter();
@@ -21,7 +18,7 @@ export default function AuthPage() {
     setLoading(true);
 
     try {
-      console.log("ENV", baseUrl);
+      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL + "/users";
       const url = isSignUp ? `${baseUrl}/register` : `${baseUrl}/login`;
       const res = await fetch(url, {
         method: "POST",
