@@ -21,6 +21,7 @@ export default function AuthPage() {
     setLoading(true);
 
     try {
+      console.log("ENV", baseUrl);
       const url = isSignUp ? `${baseUrl}/register` : `${baseUrl}/login`;
       const res = await fetch(url, {
         method: "POST",
