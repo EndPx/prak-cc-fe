@@ -1,11 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { getAuth, signOut } from "firebase/auth";
-import { app } from "../../firebase";
 import { useRouter } from "next/navigation";
-
-const auth = getAuth(app);
 
 export default function NotesPage() {
   const router = useRouter();
@@ -25,46 +21,46 @@ export default function NotesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchNotes = useCallback(async (token: string) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await fetch(`${API_BASE_URL}/notes`, {
-        headers: { Authorization: "Bearer " + token },
-      });
-      if (!res.ok) throw new Error("Gagal mengambil catatan.");
-      const data: Note[] = await res.json();
-      setNotes(data);
-    } catch (err) {
-      console.log(err);
-      setError("Gagal mengambil catatan. Silakan coba lagi.");
-    } finally {
-      setLoading(false);
+  const fetchToken = useCallback(() => {
+    const savedToken = localStorage.getItem("token");
+    if (!savedToken) {
+      router.push("/");
+      return;
     }
-  }, []);
+    setToken(savedToken);
+  }, [router]);
 
-  const fetchToken = useCallback(async () => {
-    try {
-      const user = auth.currentUser;
-      if (user) {
-        const idToken = await user.getIdToken();
-        setToken(idToken);
-        fetchNotes(idToken);
-      } else {
-        router.push("/");
+  const fetchNotes = useCallback(
+    async (token: string) => {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await fetch(`${API_BASE_URL}/notes`, {
+          headers: { Authorization: "Bearer " + token },
+        });
+        if (!res.ok) throw new Error("Gagal mengambil catatan.");
+        const data: Note[] = await res.json();
+        console.log(data);
+        setNotes(data);
+      } catch (err) {
+        console.log(err);
+        setError("Gagal mengambil catatan. Silakan coba lagi.");
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      console.error(err);
-      setError("Gagal mengambil token. Silakan coba lagi.");
-    }
-  }, [router, fetchNotes]);
+    },
+    [API_BASE_URL]
+  );
 
   useEffect(() => {
     fetchToken();
   }, [fetchToken]);
 
-  
-  
+  useEffect(() => {
+    if (token) {
+      fetchNotes(token);
+    }
+  }, [token, fetchNotes]);
 
   const addOrUpdateNote = async () => {
     if (!title || !content || !token) {
@@ -121,14 +117,9 @@ export default function NotesPage() {
     setEditId(note.id);
   };
 
-  const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      router.push("/");
-    } catch (err) {
-      console.log(err);
-      setError("Gagal logout. Silakan coba lagi.");
-    }
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    router.push("/");
   };
 
   return (

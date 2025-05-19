@@ -2,47 +2,49 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  getAuth,
-  signInWithPopup,
-  GoogleAuthProvider,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-} from "firebase/auth";
-import { app } from "../firebase";
 
-const auth = getAuth(app);
-const googleProvider = new GoogleAuthProvider();
+const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL + "/users";
 
 export default function AuthPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isSignUp, setIsSignUp] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      if (isSignUp) {
-        await createUserWithEmailAndPassword(auth, email, password);
-      } else {
-        await signInWithEmailAndPassword(auth, email, password);
-      }
-      router.push("/note");
-    } catch (err) {
-      console.log(err);
-      setError("Gagal melakukan autentikasi. Cek kembali data Anda.");
-    }
-  };
+    setError(null);
+    setLoading(true);
 
-  const handleGoogleLogin = async () => {
     try {
-      await signInWithPopup(auth, googleProvider);
+      const url = isSignUp ? `${baseUrl}/register` : `${baseUrl}/login`;
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username,
+          password,
+        }),
+      });
+
+      const data = await res.json();
+
+
+      if (!res.ok) {
+        throw new Error(data.message || "Terjadi kesalahan autentikasi");
+      }
+
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+      }
+
       router.push("/note");
-    } catch (err) {
-      console.log(err);
-      setError("Gagal login dengan Google.");
+    } catch (err: any) {
+      setError(err.message || "Gagal melakukan autentikasi. Cek kembali data Anda.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -55,11 +57,11 @@ export default function AuthPage() {
         {error && <p className="text-red-500 text-center mb-4">{error}</p>}
         <form className="flex flex-col gap-4" onSubmit={handleAuth}>
           <input
-            type="email"
-            placeholder="Email"
+            type="text"
+            placeholder="Username"
             className="p-2 border rounded bg-gray-700 text-white"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
             required
           />
           <input
@@ -70,21 +72,22 @@ export default function AuthPage() {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-          <button className="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded" type="submit">
-            {isSignUp ? "Sign Up" : "Login"}
+          <button
+            className="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded"
+            type="submit"
+            disabled={loading}
+          >
+            {loading ? "Loading..." : isSignUp ? "Sign Up" : "Login"}
           </button>
         </form>
-        <button
-          onClick={handleGoogleLogin}
-          className="bg-red-600 hover:bg-red-700 text-white p-2 rounded mt-4 w-full"
-        >
-          Login dengan Google
-        </button>
         <p className="text-center mt-4">
           {isSignUp ? "Sudah punya akun? " : "Belum punya akun? "}
           <span
             className="text-blue-400 cursor-pointer hover:underline"
-            onClick={() => setIsSignUp(!isSignUp)}
+            onClick={() => {
+              setError(null);
+              setIsSignUp(!isSignUp);
+            }}
           >
             {isSignUp ? "Login" : "Sign Up"}
           </span>
