@@ -1,24 +1,17 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+const baseUrl = "https://be-292820894391.us-central1.run.app" + "/users";
 
 export default function AuthPage() {
   const router = useRouter();
-  const [baseUrl, setBaseUrl] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isSignUp, setIsSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    const url = API_BASE_URL + "/users";
-    setBaseUrl(url);
-    console.log("Base URL set:", url);
-  }, []);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,10 +23,14 @@ export default function AuthPage() {
       const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({
+          username,
+          password,
+        }),
       });
 
       const data = await res.json();
+
 
       if (!res.ok) {
         throw new Error(data.message || "Terjadi kesalahan autentikasi");
